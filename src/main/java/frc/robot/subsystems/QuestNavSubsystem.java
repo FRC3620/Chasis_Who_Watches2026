@@ -91,11 +91,11 @@ public class QuestNavSubsystem extends SubsystemBase {
   }
 
   public void zeroQuestNavPose(){
-    setQuestNavPose(new Pose3d(0, 0, 0, new Rotation3d(Units.degreesToRadians(0), 0, 0)));
+    setQuestNavPose(new Pose3d(Units.inchesToMeters(343), Units.inchesToMeters(14.5), 0, new Rotation3d(Units.degreesToRadians(0), 0, 0)));
   }
 
   public Command zeroQuestNavPoseCommand(){
-     return run(() -> zeroQuestNavPose());
+     return runOnce(() -> zeroQuestNavPose());
   }
 
   @Override
