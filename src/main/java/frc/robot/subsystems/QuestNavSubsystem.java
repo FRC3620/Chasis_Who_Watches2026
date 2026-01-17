@@ -90,6 +90,14 @@ public class QuestNavSubsystem extends SubsystemBase {
     return roboPose;
   }
 
+  public boolean getQuestNavConnected(){
+    return questNav.isConnected();
+  }
+
+  public boolean getQuestNavIsTracking(){
+    return questNav.isTracking();
+  }
+
   public void zeroQuestNavPose(){
     setQuestNavPose(new Pose3d(Units.inchesToMeters(343), Units.inchesToMeters(14.5), 0, new Rotation3d(Units.degreesToRadians(0), 0, 0)));
   }

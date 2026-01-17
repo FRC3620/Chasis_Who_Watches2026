@@ -36,11 +36,11 @@ public class RobotContainer {
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
-    private final CommandXboxController joystick = new CommandXboxController(0);
+    private final static CommandXboxController joystick = new CommandXboxController(0);
 
-    public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+    public final static CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-    public final QuestNavSubsystem questNavSubsystem = new QuestNavSubsystem(drivetrain, new Pose3d());
+    public final static QuestNavSubsystem questNavSubsystem = new QuestNavSubsystem(drivetrain, new Pose3d());
 
     public RobotContainer() {
         configureBindings();
