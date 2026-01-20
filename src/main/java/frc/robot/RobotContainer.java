@@ -59,14 +59,11 @@ public class RobotContainer {
                 drive.withVelocityX(MathUtil.applyDeadband(-joystick.getLeftY(), 0.2) * MaxSpeed) // Drive forward with negative Y (forward)
                     .withVelocityY(MathUtil.applyDeadband(-joystick.getLeftX(), 0.2) * MaxSpeed) // Drive left with negative X (left)
                     .withRotationalRate(-joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
-            
             )
         );
 
-        CommandScheduler.getInstance().schedule(new SetIMUFromMegaTag1Command());
-
         // Idle while the robot is disabled. This ensures the configured
-        // neutral mode is applied to the drive motors while disabled.
+        // neutral mode is applied to the drivemotors while disabled.
         final var idle = new SwerveRequest.Idle();
         RobotModeTriggers.disabled().whileTrue(
             drivetrain.applyRequest(() -> idle).ignoringDisable(true)
@@ -97,8 +94,6 @@ public class RobotContainer {
                     .withVelocityY(0) // Drive left with negative X (left)
                     .withRotationalRate(0) // Drive coun
         ));
-
-        joystick.x().onTrue(new SetIMUFromMegaTag1Command());
 
     }
 

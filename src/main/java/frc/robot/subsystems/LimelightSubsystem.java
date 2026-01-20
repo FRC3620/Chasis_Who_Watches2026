@@ -39,7 +39,7 @@ public class LimelightSubsystem extends SubsystemBase {
   NetworkTableInstance inst = NetworkTableInstance.getDefault();
 
   public static AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout
-    .loadField(AprilTagFields.k2025ReefscapeWelded);
+    .loadField(AprilTagFields.k2026RebuiltWelded);
 
   public static Optional<Alliance> color;
 
