@@ -13,6 +13,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
@@ -20,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.QuestNavSubsystem;
 import gg.questnav.questnav.QuestNav;
 
@@ -42,6 +44,8 @@ public class RobotContainer {
 
     public final static QuestNavSubsystem questNavSubsystem = new QuestNavSubsystem(drivetrain, new Pose3d());
 
+    public final static LimelightSubsystem limelightSubsystem = new LimelightSubsystem();
+
     public RobotContainer() {
         configureBindings();
     }
@@ -58,6 +62,8 @@ public class RobotContainer {
             
             )
         );
+
+        CommandScheduler.getInstance().schedule(new SetIMUFromMegaTag1Command());
 
         // Idle while the robot is disabled. This ensures the configured
         // neutral mode is applied to the drive motors while disabled.
@@ -91,6 +97,8 @@ public class RobotContainer {
                     .withVelocityY(0) // Drive left with negative X (left)
                     .withRotationalRate(0) // Drive coun
         ));
+
+        joystick.x().onTrue(new SetIMUFromMegaTag1Command());
 
     }
 

@@ -16,33 +16,32 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.DoubleArrayEntry;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
 import frc.robot.LimelightHelpers.PoseEstimate;
-import frc.robot.NTStructs;
-import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.LimelightSubsystem.CameraData.MegaTagData;
 
 public class LimelightSubsystem extends SubsystemBase {
 
-  public NetworkTableInstance inst = NetworkTableInstance.getDefault();
+  NetworkTableInstance inst = NetworkTableInstance.getDefault();
 
-  public AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
+  public static AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout
+    .loadField(AprilTagFields.k2025ReefscapeWelded);
 
-  public Optional<Alliance> color;
+  public static Optional<Alliance> color;
 
   public String lastLoggedError;
 
@@ -163,7 +162,11 @@ public class LimelightSubsystem extends SubsystemBase {
             + "/";
 
         SmartDashboard.putNumber(prefix + "targetCount", m.tagCount);
-        NTStructs.publishToSmartDashboard(prefix + "poseEstimate", m.pose);
+        //NTStructs.publishToSmartDashboard(prefix + "poseEstimate", m.pose);
+
+        StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault()
+          .getStructTopic(prefix + "poseEstimate", Pose2d.struct).publish();
+        publisher.set(m.pose);
         // it doesn't seem that poses published to NT make it into the
         // wpilog file via NetworkTableInstance.startEntryDataLog, so let's be
         // explicit
@@ -193,7 +196,11 @@ public class LimelightSubsystem extends SubsystemBase {
             }
           }
           var targetPosesArray = targetPoses.toArray(new Pose3d[0]);
-          NTStructs.publish(prefix + "targets", targetPosesArray);
+          //NTStructs.publish(prefix + "targets", targetPosesArray);
+
+          StructArrayPublisher<Pose3d> publisher2 = NetworkTableInstance.getDefault()
+            .getStructArrayTopic(prefix + "targets", Pose3d.struct).publish();
+          publisher2.set(targetPosesArray);
           // it doesn't seem that poses published to NT make it into the
           // wpilog file via NetworkTableInstance.startEntryDataLog, so let's be
           // explicit
@@ -278,9 +285,9 @@ public class LimelightSubsystem extends SubsystemBase {
         sd.setVisionMeasurementStdDevs(VecBuilder.fill(translationStdDev, translationStdDev, 9999999));
 
         // If the QuestNav isn't connected or isn't tracking, use Limelight
-        if(!RobotContainer.questNavSubsystem.getQuestNavConnected() || !RobotContainer.questNavSubsystem.getQuestNavIsTracking()){
+        //if(!RobotContainer.questNavSubsystem.getQuestNavConnected() || !RobotContainer.questNavSubsystem.getQuestNavIsTracking()){
           sd.addVisionMeasurement(cameraData.megaTag2.poseEstimate.pose, cameraData.megaTag2.poseEstimate.timestampSeconds);
-        }
+        //}
 
         int updateCount = cameraData.bumpCountOfSwerveUpdatesFromThisCamera();
         SmartDashboard.putNumber(sdPrefix + "swervePoseUpdates", updateCount);
@@ -303,5 +310,5 @@ public class LimelightSubsystem extends SubsystemBase {
   public Set<CameraData> getAllCameraData() {
     return allCameraDataAsSet;
   }
-
+  
 }
