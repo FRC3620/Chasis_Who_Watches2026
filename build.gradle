@@ -5,13 +5,11 @@ plugins {
 	id "com.gorylenko.gradle-git-properties" version "2.4.1"
     // later:
     // id 'com.diffplug.spotless' version '6.12.0'
-    // ************************************************************************
+    // ************************************************************************}
 }
-
 var do_spotless = false
 var useG1GC = false
 String jmxHost = null // "172.22.11.2"
-
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
@@ -84,7 +82,7 @@ dependencies {
     implementation wpi.java.deps.wpilib()
     implementation wpi.java.vendor.java()
 
-	implementation 'org.tinylog:tinylog-api:2.7.0' // Replace with the latest version
+implementation 'org.tinylog:tinylog-api:2.7.0' // Replace with the latest version
     implementation 'org.tinylog:tinylog-impl:2.7.0' // Replace with the latest version
     roborioDebug wpi.java.deps.wpilibJniDebug(wpi.platforms.roborio)
     roborioDebug wpi.java.vendor.jniDebug(wpi.platforms.roborio)
@@ -113,9 +111,8 @@ dependencies {
 test {
     useJUnitPlatform()
     systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
-	
-	// FRC3620 ********************************************************************
-	    if (useG1GC) {
+// FRC3620 ********************************************************************
+    if (useG1GC) {
         jvmArgs "-XX:+UseG1GC"
         jvmArgs "-XX:MaxGCPauseMillis=1"
         jvmArgs "-XX:GCTimeRatio=1"
@@ -275,4 +272,5 @@ if (false) {
         }
     } 
 }
+
 // ****************************************************************************
