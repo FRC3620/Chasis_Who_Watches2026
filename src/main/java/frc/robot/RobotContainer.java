@@ -62,6 +62,9 @@ public class RobotContainer {
             )
         );
 
+        //CommandScheduler.getInstance().schedule(new SetIMUFromMegaTag1Command());
+        CommandScheduler.getInstance().schedule(new SetQuestNavPoseFromMegaTag1Command());
+
         // Idle while the robot is disabled. This ensures the configured
         // neutral mode is applied to the drivemotors while disabled.
         final var idle = new SwerveRequest.Idle();
@@ -83,7 +86,9 @@ public class RobotContainer {
 
         // reset the field-centric heading on left bumper press
         joystick.leftBumper().onTrue(questNavSubsystem.zeroQuestNavPoseCommand());
-            
+
+        joystick.x().onTrue(new SetIMUFromMegaTag1Command());
+        joystick.y().onTrue(new SetQuestNavPoseFromMegaTag1Command());
 
         drivetrain.registerTelemetry(logger::telemeterize);
 

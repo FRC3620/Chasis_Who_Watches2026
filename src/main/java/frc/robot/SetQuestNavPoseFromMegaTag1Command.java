@@ -4,33 +4,28 @@
 
 package frc.robot;
 
-import java.util.logging.LogManager;
-
-import org.tinylog.TaggedLogger;
-import org.usfirst.frc3620.logger.LoggingMaster;
-
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.util.datalog.StructLogEntry;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.LimelightHelpers.PoseEstimate;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.QuestNavSubsystem;
+import gg.questnav.questnav.QuestNav;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class SetIMUFromMegaTag1Command extends Command {
+public class SetQuestNavPoseFromMegaTag1Command extends Command {
+  boolean resetQN;
 
-  boolean resetIMU;
-  TaggedLogger logger = LoggingMaster.getLogger(getClass());
-  /** Creates a new SetIMUFromMegaTag1Command. */
-  public SetIMUFromMegaTag1Command() {
+  /** Creates a new SetQuestNavPoseFromMegaTag1Command. */
+  public SetQuestNavPoseFromMegaTag1Command() {
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    resetIMU = false;
+    resetQN = false;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -50,15 +45,10 @@ public class SetIMUFromMegaTag1Command extends Command {
       }
     }
     if (pose != null) {
-      if (RobotContainer.drivetrain != null){
-        CommandSwerveDrivetrain sd = RobotContainer.drivetrain;
-        Rotation3d r3d = new Rotation3d(0, 0, pose.getRotation().getRadians());
-
-        Rotation2d before = r3d.toRotation2d(); // log info
-        sd.getPigeon2().setYaw(pose.getRotation().getRadians());
-        Rotation2d after = r3d.toRotation2d(); // log info
-        logger.info("Swerve yaw changed from {} to {}", before.getDegrees(), after.getDegrees());
-        resetIMU = true;
+      if (RobotContainer.questNavSubsystem != null){
+        QuestNavSubsystem qn = RobotContainer.questNavSubsystem;
+        qn.setQuestNavPose(pose);
+        resetQN = true;
       }
     }
   }
@@ -70,7 +60,7 @@ public class SetIMUFromMegaTag1Command extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return resetIMU;
+    return resetQN;
   }
 
   @Override
