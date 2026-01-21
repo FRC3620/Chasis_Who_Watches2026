@@ -1,0 +1,31 @@
+[
+  {
+    "name": "simulator",
+    "serialNumber": "(simulation)",
+    "makeAllCANDevices": true,
+    "swerveDirectoryName": "swerve/simulation",
+    "competitionRobot": true,
+    "intakeFrontEncoderOffset": -1,
+    "intakeRearEncoderOffset": -1,
+    "shortLEDStrip": true
+  },
+  {
+    "name": "Joehann",
+    "serialNumber": "03063d7e",
+    "makeAllCANDevices": false,
+    "constantFile": "Swerve/JoeHannTunerConstants.java"
+  },
+  {
+    "name": "chudbot",
+    "serialNumber": ["0326F30D",  "0327BA54"],
+    "makeAllCANDevices": true,
+    "competitionRobot": true,
+    "constantFile": "Swerve/ChudbotTunerConstants.java"
+  },
+  {
+    "name": "unknown",
+    "serialNumber": "(unknown)",
+    "makeAllCANDevices": true,
+    "swerveDirectoryName": "swerve/simulation"
+  }
+]
