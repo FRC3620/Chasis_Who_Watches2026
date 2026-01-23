@@ -27,7 +27,7 @@ public class QuestNavSubsystem extends SubsystemBase {
   public QuestNav questNav = new QuestNav();
   //private Transform2d QUEST_TO_ROBOT2D = new Transform2d(Units.inchesToMeters(15.0), Units.inchesToMeters(0), new Rotation2d(0));
   private Transform3d QUEST_TO_ROBOT = new Transform3d(Units.inchesToMeters(15.5), 0, Units.inchesToMeters(14.75), new Rotation3d(Units.degreesToRadians(0), 0, 0));
-  private ChudbotCommandSwerveDrivetrain swerveSubsystem;
+  private CommandSwerveDrivetrain swerveSubsystem;
   Pose3d roboPose = new Pose3d(0,0,0, new Rotation3d(0, 0, 0));
 
   // Define the publisher as a class-level variable to keep it active
@@ -37,7 +37,7 @@ public class QuestNavSubsystem extends SubsystemBase {
 
 
   /** Creates a new QuestNav. */
-  public QuestNavSubsystem(ChudbotCommandSwerveDrivetrain swerveSubsystem, Pose3d initialQuestNavPose) {
+  public QuestNavSubsystem(CommandSwerveDrivetrain swerveSubsystem, Pose3d initialQuestNavPose) {
     this.swerveSubsystem = swerveSubsystem;
     
     // Set intial Position -- Right now, this assumes we're sitting in front of AprilTag 10 on the red side of the field

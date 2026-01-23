@@ -19,7 +19,9 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.generated.ChudbotTunerConstants;
+import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ChudbotCommandSwerveDrivetrain;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.QuestNavSubsystem;
 import gg.questnav.questnav.QuestNav;
 
@@ -38,7 +40,7 @@ public class RobotContainer {
 
     private final CommandXboxController joystick = new CommandXboxController(0);
 
-    public final ChudbotCommandSwerveDrivetrain drivetrain = ChudbotTunerConstants.createDrivetrain();
+    public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     public final QuestNavSubsystem questNavSubsystem = new QuestNavSubsystem(drivetrain, new Pose3d());
 
@@ -52,8 +54,8 @@ public class RobotContainer {
         drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
             drivetrain.applyRequest(() ->
-                drive.withVelocityX(MathUtil.applyDeadband(-joystick.getLeftY(), 0.2) * MaxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(MathUtil.applyDeadband(-joystick.getLeftX(), 0.2) * MaxSpeed) // Drive left with negative X (left)
+                drive.withVelocityX(MathUtil.applyDeadband(-joystick.getLeftY()*0.5, 0.2) * MaxSpeed) // Drive forward with negative Y (forward)
+                    .withVelocityY(MathUtil.applyDeadband(-joystick.getLeftX()*0.5, 0.2) * MaxSpeed) // Drive left with negative X (left)
                     .withRotationalRate(-joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
             
             )
