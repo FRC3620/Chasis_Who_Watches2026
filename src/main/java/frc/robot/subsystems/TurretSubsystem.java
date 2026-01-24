@@ -12,10 +12,16 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.Seconds;
 
+import java.util.function.Supplier;
+
 import com.ctre.phoenix6.hardware.TalonFX;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import yams.gearing.GearBox;
@@ -34,9 +40,9 @@ public class TurretSubsystem extends SubsystemBase {
 
   SmartMotorControllerConfig motorConfig = new SmartMotorControllerConfig(this)
       .withControlMode(ControlMode.CLOSED_LOOP)
-      .withClosedLoopController(4, 0, 0, DegreesPerSecond.of(180), DegreesPerSecondPerSecond.of(90))
+      .withClosedLoopController(4, 0, 0, DegreesPerSecond.of(360), DegreesPerSecondPerSecond.of(180))
       // Configure Motor and Mechanism properties
-      .withGearing(new MechanismGearing(GearBox.fromReductionStages(3, 4)))
+      .withGearing(new MechanismGearing(GearBox.fromReductionStages(1,50)))
       .withIdleMode(MotorMode.BRAKE)
       .withMotorInverted(false)
       // Setup Telemetry
@@ -75,8 +81,27 @@ public class TurretSubsystem extends SubsystemBase {
     turretPivot.simIterate();
   }
 
-  public Command setAngle(Angle angle){
-    return turretPivot.setAngle(angle);
+  public Command setAngle(Angle angle) {
+    return turretPivot
+        .setAngle(() -> angle)
+        .withName("TurretSetAngle(" + angle.in(Degrees) + ")");
+
   }
 
+  public Command aimAtFieldTargetCommand(
+      CommandSwerveDrivetrain drivetrain,
+      Translation2d targetPosition) {
+
+    Supplier<Angle> angleSupplier = () -> {
+      Pose2d robotPose = drivetrain.getPose();
+      Rotation2d turretAngle = frc.robot.helpers.ShooterCalculator.turretAngleForFieldTarget(robotPose, targetPosition);
+      SmartDashboard.putNumber("TargetTurretAngle", turretAngle.getDegrees());
+      return Degrees.of(turretAngle.getDegrees());
+    };
+
+    return turretPivot
+        .setAngle(angleSupplier)
+        .withName("TurretAimAtFieldTarget");
+
+  }
 }

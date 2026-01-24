@@ -12,13 +12,15 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-
+import frc.robot.commands.TurretAimAtTargetCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.QuestNavSubsystem;
@@ -49,7 +51,7 @@ public class RobotContainer {
     public RobotContainer() {
         configureBindings();
 
-        turretSubsystem.setDefaultCommand(turretSubsystem.setAngle(Degrees.of(0)));
+        turretSubsystem.setDefaultCommand(turretSubsystem.aimAtFieldTargetCommand(drivetrain, new Translation2d(Units.inchesToMeters(182.11), Units.inchesToMeters(158.84))));
     }
 
     private void configureBindings() {
@@ -97,9 +99,6 @@ public class RobotContainer {
                     .withVelocityY(0) // Drive left with negative X (left)
                     .withRotationalRate(0) // Drive coun
         ));
-
-joystick.a().whileTrue(turretSubsystem.setAngle(Degrees.of(-45)));
-joystick.b().whileTrue(turretSubsystem.setAngle(Degrees.of(45)));
 
     }
 
