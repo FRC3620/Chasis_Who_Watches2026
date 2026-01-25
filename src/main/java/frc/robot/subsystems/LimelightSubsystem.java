@@ -279,7 +279,7 @@ public class LimelightSubsystem extends SubsystemBase {
       }
       if (sd != null && error.length() == 0) {
         double distanceError = sd.getState().Pose.getTranslation()
-            .getDistance(cameraData.megaTag2.poseEstimate.pose.getTranslation());
+            .getDistance(cameraData.megaTag1.poseEstimate.pose.getTranslation());
 
         double translationStdDev = Math.min(50.0, Math.max(0.4, distanceError * 2.0));
         // double rotationStdDev = Math.min(50.0, Math.max(0.3, distanceError * 0.3));
@@ -290,7 +290,7 @@ public class LimelightSubsystem extends SubsystemBase {
 
         // If the QuestNav isn't connected or isn't tracking, use Limelight
         if(!RobotContainer.questNavSubsystem.getQuestNavConnected() || !RobotContainer.questNavSubsystem.getQuestNavIsTracking()){
-          sd.addVisionMeasurement(cameraData.megaTag2.poseEstimate.pose, cameraData.megaTag2.poseEstimate.timestampSeconds);
+          sd.addVisionMeasurement(cameraData.megaTag1.poseEstimate.pose, cameraData.megaTag1.poseEstimate.timestampSeconds);
         }
 
         int updateCount = cameraData.bumpCountOfSwerveUpdatesFromThisCamera();

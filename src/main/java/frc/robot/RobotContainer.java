@@ -62,7 +62,7 @@ public class RobotContainer {
             )
         );
 
-        //CommandScheduler.getInstance().schedule(new SetIMUFromMegaTag1Command());
+        CommandScheduler.getInstance().schedule(new SetIMUFromMegaTag1Command());
         CommandScheduler.getInstance().schedule(new SetQuestNavPoseFromMegaTag1Command());
 
         // Idle while the robot is disabled. This ensures the configured

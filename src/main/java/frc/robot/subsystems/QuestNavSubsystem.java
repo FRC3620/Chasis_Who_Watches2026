@@ -58,6 +58,7 @@ public class QuestNavSubsystem extends SubsystemBase {
 
     SmartDashboard.putBoolean("QuestNav.isConnected", questNav.isConnected());
     SmartDashboard.putBoolean("QuestNav.isTracking", questNav.isTracking());
+    SmartDashboard.putNumber("QuestNav.batteryPercent", getQuestNavPower());
     
     if (questNav.isConnected() && questNav.isTracking()) {
 
@@ -103,6 +104,10 @@ public class QuestNavSubsystem extends SubsystemBase {
 
   public boolean getQuestNavIsTracking(){
     return questNav.isTracking();
+  }
+
+  public int getQuestNavPower(){
+    return questNav.getBatteryPercent().getAsInt();
   }
 
   public void zeroQuestNavPose(){
