@@ -52,10 +52,10 @@ public class SetIMUFromMegaTag1Command extends Command {
     if (pose != null) {
       if (RobotContainer.drivetrain != null){
         CommandSwerveDrivetrain sd = RobotContainer.drivetrain;
-        Rotation3d r3d = new Rotation3d(0, 0, pose.getRotation().getRadians());
+        Rotation3d r3d = new Rotation3d(0, 0, pose.getRotation().getDegrees());
 
         Rotation2d before = r3d.toRotation2d(); // log info
-        sd.getPigeon2().setYaw(pose.getRotation().getRadians());
+        sd.getPigeon2().setYaw(pose.getRotation().getDegrees());
         Rotation2d after = r3d.toRotation2d(); // log info
         logger.info("Swerve yaw changed from {} to {}", before.getDegrees(), after.getDegrees());
         resetIMU = true;

@@ -48,8 +48,8 @@ public class LimelightSubsystem extends SubsystemBase {
   public String lastLoggedError;
 
   public enum Camera {
-    FRONT("limelight-front"),
-    BACK("limelight-back");
+    LEFT("limelight-left"),
+    RIGHT("limelight-right");
 
     public final String limelightName;
 
@@ -145,8 +145,8 @@ public class LimelightSubsystem extends SubsystemBase {
   /** Creates a new LimelightSubsystem. */
   public LimelightSubsystem() {
 
-    allCameraData.put(Camera.FRONT, new CameraData(Camera.FRONT)); // Camera Data front
-    allCameraData.put(Camera.BACK, new CameraData(Camera.BACK)); // Camera Data Back
+    allCameraData.put(Camera.LEFT, new CameraData(Camera.LEFT)); // Camera Data front
+    allCameraData.put(Camera.RIGHT, new CameraData(Camera.RIGHT)); // Camera Data Back
     allCameraData = Map.copyOf(allCameraData); // make immutable
     allCameraDataAsSet = Set.copyOf(allCameraData.values());
 
@@ -235,9 +235,9 @@ public class LimelightSubsystem extends SubsystemBase {
     if (RobotContainer.drivetrain != null) {
       sd = RobotContainer.drivetrain;
       yaw = sd.getPigeon2().getYaw().getValueAsDouble();
+      SmartDashboard.putNumber("Vision.yaw", yaw);
       pitch = sd.getPigeon2().getPitch().getValueAsDouble();
-      // need to convert this to degrees / s.
-      // yawRate = sd.getGyro().getYawAngularVelocity();
+      yawRate = sd.getPigeon2().getAngularVelocityZWorld().getValueAsDouble();
       currentSwervePose = sd.getState().Pose;
     }
 
