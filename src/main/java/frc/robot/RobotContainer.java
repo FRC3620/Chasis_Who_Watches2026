@@ -47,17 +47,17 @@ public class RobotContainer {
 
     private final static CommandXboxController joystick = new CommandXboxController(0);
 
-    public final static CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+    public static CommandSwerveDrivetrain drivetrain;
 
-    public final static QuestNavSubsystem questNavSubsystem = new QuestNavSubsystem(drivetrain, new Pose3d());
+    public static QuestNavSubsystem questNavSubsystem;
 
     public final static LimelightSubsystem limelightSubsystem = new LimelightSubsystem();
 
     private SendableChooser<Command> autoChooser;
 
     public RobotContainer() {
-        autoChooser = AutoBuilder.buildAutoChooser("Tests");
-        SmartDashboard.putData("Auto Mode", autoChooser);
+
+        makeSubsystems();
 
         // questNavSubsystem = new QuestNavSubsystem(drivetrain,
         // autoChooser.getSelected());
@@ -69,6 +69,11 @@ public class RobotContainer {
         setUpAutonomousCommands();
 
         FollowPathCommand.warmupCommand().schedule();
+    }
+
+    public void makeSubsystems(){
+        drivetrain = TunerConstants.createDrivetrain();
+        questNavSubsystem = new QuestNavSubsystem(drivetrain, new Pose3d());
     }
 
     private void configureBindings() {
