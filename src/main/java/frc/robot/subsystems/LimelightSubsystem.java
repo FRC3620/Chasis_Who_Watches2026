@@ -4,6 +4,9 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -234,11 +237,11 @@ public class LimelightSubsystem extends SubsystemBase {
 
     if (RobotContainer.drivetrain != null) {
       sd = RobotContainer.drivetrain;
-      yaw = sd.getPigeon2().getYaw().getValueAsDouble();
+      yaw = sd.getStateCopy().Pose.getRotation().getDegrees();
       SmartDashboard.putNumber("Vision.yaw", yaw);
       pitch = sd.getPigeon2().getPitch().getValueAsDouble();
       yawRate = sd.getPigeon2().getAngularVelocityZWorld().getValueAsDouble();
-      currentSwervePose = sd.getState().Pose;
+      currentSwervePose = sd.getStateCopy().Pose;
     }
 
     for (var cameraData : allCameraData.values()) {
@@ -290,11 +293,15 @@ public class LimelightSubsystem extends SubsystemBase {
 
         // If the QuestNav isn't connected or isn't tracking, use Limelight
         if(!RobotContainer.questNavSubsystem.getQuestNavConnected() || !RobotContainer.questNavSubsystem.getQuestNavIsTracking()){
-          sd.addVisionMeasurement(cameraData.megaTag2.poseEstimate.pose, cameraData.megaTag2.poseEstimate.timestampSeconds);
+          //sd.addVisionMeasurement(cameraData.megaTag2.poseEstimate.pose, cameraData.megaTag2.poseEstimate.timestampSeconds);
         }
+
+        NTStructs.publish(sdPrefix + "megaTag2PoseEstimate", cameraData.megaTag2.poseEstimate.pose);
+
 
         int updateCount = cameraData.bumpCountOfSwerveUpdatesFromThisCamera();
         SmartDashboard.putNumber(sdPrefix + "swervePoseUpdates", updateCount);
+
       }
       if (error != lastLoggedError) {
         // log if it changed

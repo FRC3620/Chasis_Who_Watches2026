@@ -10,6 +10,7 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
@@ -18,6 +19,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -60,6 +62,7 @@ public class RobotContainer {
         drivetrain = configureSwerveDrive();
         questNavSubsystem = new QuestNavSubsystem(drivetrain, new Pose3d());
         
+
         configureBindings();
 
 
@@ -108,8 +111,7 @@ public class RobotContainer {
                                                                                             // with negative X (left)
                 ));
 
-        // CommandScheduler.getInstance().schedule(new SetIMUFromMegaTag1Command());
-        CommandScheduler.getInstance().schedule(new SetQuestNavPoseFromMegaTag1Command());
+        //CommandScheduler.getInstance().schedule(new SetQuestNavPoseFromMegaTag1Command());
 
         // Idle while the robot is disabled. This ensures the configured
         // neutral mode is applied to the drivemotors while disabled.
@@ -130,8 +132,8 @@ public class RobotContainer {
 
         // reset the field-centric heading on left bumper press
         joystick.leftBumper().onTrue(questNavSubsystem.zeroQuestNavPoseCommand());
+        joystick.leftBumper().onTrue(new InstantCommand(() -> drivetrain.getPigeon2().setYaw(0))).onTrue(new InstantCommand(() -> drivetrain.resetPose(new Pose2d(0, 0, new Rotation2d(0,0)))));
 
-        joystick.x().onTrue(new SetIMUFromMegaTag1Command());
         joystick.y().onTrue(new SetQuestNavPoseFromMegaTag1Command());
 
         drivetrain.registerTelemetry(logger::telemeterize);
