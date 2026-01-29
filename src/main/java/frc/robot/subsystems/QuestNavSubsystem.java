@@ -25,11 +25,12 @@ public class QuestNavSubsystem extends SubsystemBase {
 
   public QuestNav questNav = new QuestNav();
   private final double QUEST_NAV_HEIGHT = 14.75;
+  private final double QUEST_NAV_CENTER_OFFSET = 12;
 
   // private Transform2d QUEST_TO_ROBOT2D = new
   // Transform2d(Units.inchesToMeters(15.0), Units.inchesToMeters(0), new
   // Rotation2d(0));
-  private Transform3d QUEST_TO_ROBOT = new Transform3d(Units.inchesToMeters(15.5), 0,
+  private Transform3d QUEST_TO_ROBOT = new Transform3d(Units.inchesToMeters(QUEST_NAV_CENTER_OFFSET), 0,
       Units.inchesToMeters(QUEST_NAV_HEIGHT), new Rotation3d(Units.degreesToRadians(0), 0, 0));
   private CommandSwerveDrivetrain swerveSubsystem;
   Pose3d roboPose = new Pose3d(0, 0, 0, new Rotation3d(0, 0, 0));

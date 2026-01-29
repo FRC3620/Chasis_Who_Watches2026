@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.6429533712596465,
-        "y": 4.067058590997371
+        "x": 5.828724455596996,
+        "y": 4.67728750666002
       },
       "isLocked": false,
       "linkedName": "Red Square Center"
     },
     {
       "anchor": {
-        "x": 5.904,
-        "y": 4.209843373493976
+        "x": 7.898457831325301,
+        "y": 6.012915662650602
       },
       "prevControl": {
-        "x": 6.761975903614462,
-        "y": 4.1897108433734935
+        "x": 8.761746987951806,
+        "y": 5.510240963855422
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "reversed": false,
   "folder": null,
