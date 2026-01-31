@@ -57,7 +57,7 @@ public class RobotContainer {
 
     private SendableChooser<Command> autoChooser;
 
-    public final TurretSubsystem turretSubsystem = new TurretSubsystem();
+    //public static TurretSubsystem turretSubsystem;
 
     public RobotContainer() {
 
@@ -78,7 +78,9 @@ public class RobotContainer {
     public void makeSubsystems(){
         drivetrain = TunerConstants.createDrivetrain();
         questNavSubsystem = new QuestNavSubsystem(drivetrain, new Pose3d());
-        turretSubsystem.setDefaultCommand(turretSubsystem.setAngle(Degrees.of(0)));
+
+        //turretSubsystem = new TurretSubsystem();
+        //turretSubsystem.setDefaultCommand(turretSubsystem.setAngle(Degrees.of(0)));
     }
 
     private void configureBindings() {
