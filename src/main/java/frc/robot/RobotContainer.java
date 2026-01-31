@@ -36,7 +36,7 @@ import gg.questnav.questnav.QuestNav;
 public class RobotContainer {
     private double MaxSpeed = ChudbotTunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top
                                                                                          // speed
-    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second
+    private double MaxAngularRate = RotationsPerSecond.of(1.25).in(RadiansPerSecond); // 3/4 of a rotation per second
                                                                                       // max angular velocity
 
     /* Setting up bindings for necessary control of the swerve drive platform */
@@ -54,13 +54,12 @@ public class RobotContainer {
 
     public static QuestNavSubsystem questNavSubsystem;
 
-    public final static LimelightSubsystem limelightSubsystem = new LimelightSubsystem();
+    public static LimelightSubsystem limelightSubsystem;
 
     //public final TurretSubsystem turretSubsystem = new TurretSubsystem();
 
     public RobotContainer() {
-        drivetrain = configureSwerveDrive();
-        questNavSubsystem = new QuestNavSubsystem(drivetrain, new Pose3d());
+        makeSubsystems();
         
 
         configureBindings();
@@ -68,6 +67,13 @@ public class RobotContainer {
 
 
         //turretSubsystem.setDefaultCommand(turretSubsystem.setAngle(Degrees.of(0)));
+    }
+
+    private void makeSubsystems() {
+        drivetrain = configureSwerveDrive();
+        questNavSubsystem = new QuestNavSubsystem(drivetrain, new Pose3d());
+        limelightSubsystem = new LimelightSubsystem();
+
     }
 
     private CommandSwerveDrivetrain configureSwerveDrive() {
@@ -112,6 +118,9 @@ public class RobotContainer {
                 ));
 
         //CommandScheduler.getInstance().schedule(new SetQuestNavPoseFromMegaTag1Command());
+        CommandScheduler.getInstance().schedule(
+            new InstantCommand(() -> drivetrain.getPigeon2().setYaw(limelightSubsystem.getMegaTag1Rotation().getDegrees()))
+            .andThen(new InstantCommand(() -> drivetrain.seedFieldCentric(limelightSubsystem.getMegaTag1Rotation()))));
 
         // Idle while the robot is disabled. This ensures the configured
         // neutral mode is applied to the drivemotors while disabled.
@@ -132,7 +141,6 @@ public class RobotContainer {
 
         // reset the field-centric heading on left bumper press
         joystick.leftBumper().onTrue(questNavSubsystem.zeroQuestNavPoseCommand());
-        joystick.leftBumper().onTrue(new InstantCommand(() -> drivetrain.getPigeon2().setYaw(0))).onTrue(new InstantCommand(() -> drivetrain.resetPose(new Pose2d(0, 0, new Rotation2d(0,0)))));
 
         joystick.y().onTrue(new SetQuestNavPoseFromMegaTag1Command());
 
