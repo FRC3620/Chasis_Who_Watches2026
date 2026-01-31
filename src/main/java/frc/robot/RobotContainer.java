@@ -18,6 +18,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -29,6 +30,7 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.QuestNavSubsystem;
+import frc.robot.subsystems.TurretSubsystem;
 import gg.questnav.questnav.QuestNav;
 
 public class RobotContainer {
@@ -55,6 +57,8 @@ public class RobotContainer {
 
     private SendableChooser<Command> autoChooser;
 
+    public final TurretSubsystem turretSubsystem = new TurretSubsystem();
+
     public RobotContainer() {
 
         makeSubsystems();
@@ -74,6 +78,7 @@ public class RobotContainer {
     public void makeSubsystems(){
         drivetrain = TunerConstants.createDrivetrain();
         questNavSubsystem = new QuestNavSubsystem(drivetrain, new Pose3d());
+        turretSubsystem.setDefaultCommand(turretSubsystem.setAngle(Degrees.of(0)));
     }
 
     private void configureBindings() {
