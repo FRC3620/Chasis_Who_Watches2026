@@ -14,18 +14,23 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
+import frc.robot.generated.ChudbotTunerConstants;
+import frc.robot.generated.JoeHannTunerConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.LimelightSubsystem;
@@ -34,8 +39,9 @@ import frc.robot.subsystems.TurretSubsystem;
 import gg.questnav.questnav.QuestNav;
 
 public class RobotContainer {
-    private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
-    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second
+    private double MaxSpeed = ChudbotTunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top
+                                                                                         // speed
+    private double MaxAngularRate = RotationsPerSecond.of(1.25).in(RadiansPerSecond); // 3/4 of a rotation per second
                                                                                       // max angular velocity
 
     /* Setting up bindings for necessary control of the swerve drive platform */
@@ -53,7 +59,9 @@ public class RobotContainer {
 
     public static QuestNavSubsystem questNavSubsystem;
 
-    public final static LimelightSubsystem limelightSubsystem = new LimelightSubsystem();
+    public static LimelightSubsystem limelightSubsystem;
+
+    //public final TurretSubsystem turretSubsystem = new TurretSubsystem();
 
     private SendableChooser<Command> autoChooser;
 
@@ -76,9 +84,31 @@ public class RobotContainer {
     }
 
     public void makeSubsystems(){
-        drivetrain = TunerConstants.createDrivetrain();
+        drivetrain = configureSwerveDrive();
         questNavSubsystem = new QuestNavSubsystem(drivetrain, new Pose3d());
+        limelightSubsystem = new LimelightSubsystem();
+      
         turretSubsystem.setDefaultCommand(turretSubsystem.setAngle(Degrees.of(0)));
+
+    }
+
+    private CommandSwerveDrivetrain configureSwerveDrive() {
+        String serialNumber = RobotController.getSerialNumber();
+
+        if (serialNumber.equals("0326F30D") || serialNumber.equals("0327BA54")) {
+            SmartDashboard.putString("Robot Serial", serialNumber);
+            SmartDashboard.putString("Robot Variant", "Chudbot");
+            return ChudbotTunerConstants.createDrivetrain();
+        } else if (serialNumber.equals("03063D7E")) {
+            SmartDashboard.putString("Robot Serial", serialNumber);
+            SmartDashboard.putString("Robot Variant", "JoeHann");
+            return JoeHannTunerConstants.createDrivetrain();
+        } else {
+            SmartDashboard.putString("Robot Serial", serialNumber);
+            SmartDashboard.putString("Robot Variant", "Other");
+            return TunerConstants.createDrivetrain();
+        }
+        
     }
 
     private void configureBindings() {
@@ -102,8 +132,11 @@ public class RobotContainer {
                                                                                             // with negative X (left)
                 ));
 
-        CommandScheduler.getInstance().schedule(new SetIMUFromMegaTag1Command());
+      //fix questnav correction command
         CommandScheduler.getInstance().schedule(new SetQuestNavPoseFromMegaTag1Command());
+        CommandScheduler.getInstance().schedule(
+            new InstantCommand(() -> drivetrain.getPigeon2().setYaw(limelightSubsystem.getMegaTag1Rotation().getDegrees()))
+            .andThen(new InstantCommand(() -> drivetrain.seedFieldCentric(limelightSubsystem.getMegaTag1Rotation()))));
 
         // Idle while the robot is disabled. This ensures the configured
         // neutral mode is applied to the drivemotors while disabled.
@@ -125,7 +158,6 @@ public class RobotContainer {
         // reset the field-centric heading on left bumper press
         joystick.leftBumper().onTrue(questNavSubsystem.zeroQuestNavPoseCommand());
 
-        joystick.x().onTrue(new SetIMUFromMegaTag1Command());
         joystick.y().onTrue(new SetQuestNavPoseFromMegaTag1Command());
 
         drivetrain.registerTelemetry(logger::telemeterize);

@@ -4,6 +4,10 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -21,11 +25,13 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.DoubleArrayEntry;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -48,8 +54,8 @@ public class LimelightSubsystem extends SubsystemBase {
   public String lastLoggedError;
 
   public enum Camera {
-    FRONT("limelight-front"),
-    BACK("limelight-back");
+    LEFT("limelight-left"),
+    RIGHT("limelight-right");
 
     public final String limelightName;
 
@@ -145,8 +151,8 @@ public class LimelightSubsystem extends SubsystemBase {
   /** Creates a new LimelightSubsystem. */
   public LimelightSubsystem() {
 
-    allCameraData.put(Camera.FRONT, new CameraData(Camera.FRONT)); // Camera Data front
-    allCameraData.put(Camera.BACK, new CameraData(Camera.BACK)); // Camera Data Back
+    allCameraData.put(Camera.LEFT, new CameraData(Camera.LEFT)); // Camera Data front
+    allCameraData.put(Camera.RIGHT, new CameraData(Camera.RIGHT)); // Camera Data Back
     allCameraData = Map.copyOf(allCameraData); // make immutable
     allCameraDataAsSet = Set.copyOf(allCameraData.values());
 
@@ -164,7 +170,7 @@ public class LimelightSubsystem extends SubsystemBase {
             + "/";
 
         SmartDashboard.putNumber(prefix + "targetCount", m.tagCount);
-        NTStructs.publishToSmartDashboard(prefix + "poseEstimate", m.pose);
+        //NTStructs.publishToSmartDashboard(prefix + "poseEstimate", m.pose);
 
         /*StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault()
           .getStructTopic(prefix + "poseEstimate", Pose2d.struct).publish();
@@ -234,11 +240,11 @@ public class LimelightSubsystem extends SubsystemBase {
 
     if (RobotContainer.drivetrain != null) {
       sd = RobotContainer.drivetrain;
-      yaw = sd.getPigeon2().getYaw().getValueAsDouble();
+      yaw = sd.getStateCopy().Pose.getRotation().getDegrees();
+      SmartDashboard.putNumber("Vision.yaw", yaw);
       pitch = sd.getPigeon2().getPitch().getValueAsDouble();
-      // need to convert this to degrees / s.
-      // yawRate = sd.getGyro().getYawAngularVelocity();
-      currentSwervePose = sd.getState().Pose;
+      yawRate = sd.getPigeon2().getAngularVelocityZWorld().getValueAsDouble();
+      currentSwervePose = sd.getStateCopy().Pose;
     }
 
     for (var cameraData : allCameraData.values()) {
@@ -279,9 +285,10 @@ public class LimelightSubsystem extends SubsystemBase {
       }
       if (sd != null && error.length() == 0) {
         double distanceError = sd.getState().Pose.getTranslation()
-            .getDistance(cameraData.megaTag1.poseEstimate.pose.getTranslation());
+            .getDistance(cameraData.megaTag2.poseEstimate.pose.getTranslation());
+          double numberTargetsSeen = cameraData.megaTag2.poseEstimate.tagCount;
 
-        double translationStdDev = Math.min(50.0, Math.max(0.4, distanceError * 2.0));
+        double translationStdDev = Math.min(50.0, Math.max(0.4, numberTargetsSeen * distanceError * 2.0));
         // double rotationStdDev = Math.min(50.0, Math.max(0.3, distanceError * 0.3));
 
         // sd.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));//originally
@@ -293,8 +300,13 @@ public class LimelightSubsystem extends SubsystemBase {
           sd.addVisionMeasurement(cameraData.megaTag1.poseEstimate.pose, cameraData.megaTag1.poseEstimate.timestampSeconds);
         }
 
+        NTStructs.publish(sdPrefix + "megaTag2PoseEstimate", cameraData.megaTag2.poseEstimate.pose);
+        NTStructs.publish(sdPrefix + "megaTag1PoseEstimate", cameraData.megaTag1.poseEstimate.pose);
+
+
         int updateCount = cameraData.bumpCountOfSwerveUpdatesFromThisCamera();
         SmartDashboard.putNumber(sdPrefix + "swervePoseUpdates", updateCount);
+
       }
       if (error != lastLoggedError) {
         // log if it changed
@@ -305,6 +317,7 @@ public class LimelightSubsystem extends SubsystemBase {
       SmartDashboard.putString(sdPrefix + "rejectionMessage", error);
     }
 
+    SmartDashboard.putNumber("errorBetweenMegaTag2Readings", getErrorBetweenCameras().in(Meters));
   }
 
   public CameraData getCameraData(Camera camera) {
@@ -313,6 +326,44 @@ public class LimelightSubsystem extends SubsystemBase {
 
   public Set<CameraData> getAllCameraData() {
     return allCameraDataAsSet;
+  }
+
+  public Rotation2d getMegaTag1Rotation() {
+    List<Rotation2d> rotations = new ArrayList<>();
+
+    for (CameraData cdata : allCameraData.values()) {
+      PoseEstimate pe = cdata.megaTag1.getPoseEstimate();
+      if(pe != null) {
+        rotations.add(pe.pose.getRotation());
+      }
+    }
+    
+    double sinSum = 0;
+    double cosSum = 0;
+    for (Rotation2d rot : rotations) {
+      sinSum += rot.getSin();
+      cosSum += rot.getCos();
+    }
+
+    return new Rotation2d(cosSum, sinSum);
+  }
+
+  public Distance getErrorBetweenCameras() {
+    List<Pose2d> pes = new ArrayList<>();
+    Distance error = Meters.of(0);
+    for(CameraData cdata : allCameraData.values()) {
+      Pose2d pe = cdata.megaTag2.getPoseEstimate().pose;
+      if (pe != null) {
+        pes.add(pe);
+      }
+    } 
+    
+
+    for (int i = 0; i < pes.size() - 1; i++) {
+      error = error.plus(Meters.of(pes.get(i).getTranslation().getDistance(pes.get(i+1).getTranslation())));
+    }
+
+    return error;
   }
   
 }
