@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -25,60 +24,68 @@ public class QuestNavSubsystem extends SubsystemBase {
 
   public QuestNav questNav = new QuestNav();
   private final double QUEST_NAV_HEIGHT = 14.75;
+  private final double QUEST_NAV_CENTER_OFFSET = 12;
 
-  //private Transform2d QUEST_TO_ROBOT2D = new Transform2d(Units.inchesToMeters(15.0), Units.inchesToMeters(0), new Rotation2d(0));
-  private Transform3d QUEST_TO_ROBOT = new Transform3d(Units.inchesToMeters(15.5), 0, Units.inchesToMeters(QUEST_NAV_HEIGHT), new Rotation3d(Units.degreesToRadians(0), 0, 0));
+  // private Transform2d QUEST_TO_ROBOT2D = new
+  // Transform2d(Units.inchesToMeters(15.0), Units.inchesToMeters(0), new
+  // Rotation2d(0));
+  private Transform3d QUEST_TO_ROBOT = new Transform3d(Units.inchesToMeters(QUEST_NAV_CENTER_OFFSET), 0,
+      Units.inchesToMeters(QUEST_NAV_HEIGHT), new Rotation3d(Units.degreesToRadians(0), 0, 0));
   private CommandSwerveDrivetrain swerveSubsystem;
-  Pose3d roboPose = new Pose3d(0,0,0, new Rotation3d(0, 0, 0));
+  Pose3d roboPose = new Pose3d(0, 0, 0, new Rotation3d(0, 0, 0));
 
   // Define the publisher as a class-level variable to keep it active
   StructPublisher<Pose3d> posePub = NetworkTableInstance.getDefault()
-    .getStructTopic("QuestNavPose3d", Pose3d.struct)
-    .publish();
-
+      .getStructTopic("QuestNavPose3d", Pose3d.struct)
+      .publish();
 
   /** Creates a new QuestNav. */
   public QuestNavSubsystem(CommandSwerveDrivetrain swerveSubsystem, Pose3d initialQuestNavPose) {
     this.swerveSubsystem = swerveSubsystem;
-    
-    // Set intial Position -- Right now, this assumes we're sitting in front of AprilTag 10 on the red side of the field
-    /*questNav.setPose(new Pose3d(Units.inchesToMeters(0),  //
-                                Units.inchesToMeters(0),
-                                Units.inchesToMeters(0),
-                                new Rotation3d(Math.toRadians(180), Math.toRadians(0), Math.toRadians(0))));
-    */
+
+    // Set intial Position -- Right now, this assumes we're sitting in front of
+    // AprilTag 10 on the red side of the field
+    /*
+     * questNav.setPose(new Pose3d(Units.inchesToMeters(0), //
+     * Units.inchesToMeters(0),
+     * Units.inchesToMeters(0),
+     * new Rotation3d(Math.toRadians(180), Math.toRadians(0), Math.toRadians(0))));
+     */
 
     questNav.setPose(initialQuestNavPose);
 
   }
 
   public void updateVisionMeasurement() {
-    Matrix<N3, N1> QUESTNAV_STD_DEVS = VecBuilder.fill(0.02,0.02,0.035);
+
+    Matrix<N3, N1> QUESTNAV_STD_DEVS = VecBuilder.fill(0.02, 0.02, 0.035);
 
     SmartDashboard.putBoolean("QuestNav.isConnected", questNav.isConnected());
     SmartDashboard.putBoolean("QuestNav.isTracking", questNav.isTracking());
-    
+    SmartDashboard.putNumber("QuestNav.batteryPercent", getQuestNavPower());
+
     if (questNav.isConnected() && questNav.isTracking()) {
 
       PoseFrame[] questFrames = questNav.getAllUnreadPoseFrames();
-      
-      //Loop over the pose data frames nd send them to the pose estimatior
 
-      for (PoseFrame questFrame: questFrames) {
-        //Get the Pose of the Quest
+      // Loop over the pose data frames nd send them to the pose estimatior
+
+      for (PoseFrame questFrame : questFrames) {
+        // Get the Pose of the Quest
         Pose3d questPose = questFrame.questPose3d();
-        
-        //get the timestamp for when the data was sent
+
+        // get the timestamp for when the data was sent
         double timestamp = questFrame.dataTimestamp();
 
         // Transform by the mount pose to get the robot pose
         Pose3d robotPose = questPose.transformBy(QUEST_TO_ROBOT.inverse());
 
         // Add the mesaurement to the pose Estimator
-        swerveSubsystem.addVisionMeasurement(robotPose.toPose2d(), timestamp,QUESTNAV_STD_DEVS);
-
+        if (swerveSubsystem != null) {
+          swerveSubsystem.addVisionMeasurement(robotPose.toPose2d(), timestamp, QUESTNAV_STD_DEVS);
+        }
         roboPose = robotPose;
-        
+
       }
     }
   }
@@ -87,7 +94,7 @@ public class QuestNavSubsystem extends SubsystemBase {
     questNav.setPose(pose.transformBy(QUEST_TO_ROBOT));
   }
 
-  public void setQuestNavPose(Pose2d pose){
+  public void setQuestNavPose(Pose2d pose) {
     Pose3d pose3d = new Pose3d(pose.getX(), pose.getY(), 0, new Rotation3d(pose.getRotation()));
     questNav.setPose(pose3d.transformBy(QUEST_TO_ROBOT));
   }
@@ -96,20 +103,25 @@ public class QuestNavSubsystem extends SubsystemBase {
     return roboPose;
   }
 
-  public boolean getQuestNavConnected(){
+  public boolean getQuestNavConnected() {
     return questNav.isConnected();
   }
 
-  public boolean getQuestNavIsTracking(){
+  public boolean getQuestNavIsTracking() {
     return questNav.isTracking();
   }
 
-  public void zeroQuestNavPose(){
-    setQuestNavPose(new Pose3d(Units.inchesToMeters(343), Units.inchesToMeters(14.5), 0, new Rotation3d(Units.degreesToRadians(0), 0, 0)));
+  public int getQuestNavPower() {
+    return questNav.getBatteryPercent().getAsInt();
   }
 
-  public Command zeroQuestNavPoseCommand(){
-     return runOnce(() -> zeroQuestNavPose());
+  public void zeroQuestNavPose() {
+    setQuestNavPose(new Pose3d(Units.inchesToMeters(343), Units.inchesToMeters(14.5), 0,
+        new Rotation3d(Units.degreesToRadians(0), 0, 0)));
+  }
+
+  public Command zeroQuestNavPoseCommand() {
+    return runOnce(() -> zeroQuestNavPose());
   }
 
   @Override
@@ -120,6 +132,6 @@ public class QuestNavSubsystem extends SubsystemBase {
     updateVisionMeasurement();
 
     posePub.set(roboPose);
-    
+
   }
 }

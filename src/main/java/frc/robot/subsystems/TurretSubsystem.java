@@ -40,7 +40,7 @@ public class TurretSubsystem extends SubsystemBase {
       .withIdleMode(MotorMode.BRAKE)
       .withMotorInverted(false)
       // Setup Telemetry
-      .withTelemetry("TurretMotor", TelemetryVerbosity.LOW)
+      .withTelemetry("TurretMotor", TelemetryVerbosity.HIGH)
       // Power Optimization
       .withStatorCurrentLimit(Amps.of(40))
       .withClosedLoopRampRate(Seconds.of(0.25))

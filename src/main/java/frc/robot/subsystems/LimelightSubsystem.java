@@ -297,7 +297,7 @@ public class LimelightSubsystem extends SubsystemBase {
 
         // If the QuestNav isn't connected or isn't tracking, use Limelight
         if(!RobotContainer.questNavSubsystem.getQuestNavConnected() || !RobotContainer.questNavSubsystem.getQuestNavIsTracking()){
-          sd.addVisionMeasurement(cameraData.megaTag2.poseEstimate.pose, cameraData.megaTag2.poseEstimate.timestampSeconds);
+          sd.addVisionMeasurement(cameraData.megaTag1.poseEstimate.pose, cameraData.megaTag1.poseEstimate.timestampSeconds);
         }
 
         NTStructs.publish(sdPrefix + "megaTag2PoseEstimate", cameraData.megaTag2.poseEstimate.pose);

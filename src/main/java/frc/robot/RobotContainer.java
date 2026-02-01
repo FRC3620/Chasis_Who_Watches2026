@@ -7,15 +7,20 @@ package frc.robot;
 import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.FollowPathCommand;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -58,21 +63,32 @@ public class RobotContainer {
 
     //public final TurretSubsystem turretSubsystem = new TurretSubsystem();
 
+    private SendableChooser<Command> autoChooser;
+
+    public final TurretSubsystem turretSubsystem = new TurretSubsystem();
+
     public RobotContainer() {
+
         makeSubsystems();
-        
+
+        // questNavSubsystem = new QuestNavSubsystem(drivetrain,
+        // autoChooser.getSelected());
 
         configureBindings();
 
+        setupPathPlannerCommands();
 
+        setUpAutonomousCommands();
 
-        //turretSubsystem.setDefaultCommand(turretSubsystem.setAngle(Degrees.of(0)));
+        FollowPathCommand.warmupCommand().schedule();
     }
 
-    private void makeSubsystems() {
+    public void makeSubsystems(){
         drivetrain = configureSwerveDrive();
         questNavSubsystem = new QuestNavSubsystem(drivetrain, new Pose3d());
         limelightSubsystem = new LimelightSubsystem();
+      
+        turretSubsystem.setDefaultCommand(turretSubsystem.setAngle(Degrees.of(0)));
 
     }
 
@@ -102,22 +118,22 @@ public class RobotContainer {
                 // Drivetrain will execute this command periodically
                 drivetrain.applyRequest(
                         () -> drive.withVelocityX(MathUtil.applyDeadband(-joystick.getLeftY(), 0.2) * MaxSpeed) // Drive
-                                                                                                                      // forward
-                                                                                                                      // with
-                                                                                                                      // negative
-                                                                                                                      // Y
-                                                                                                                      // (forward)
+                                                                                                                // forward
+                                                                                                                // with
+                                                                                                                // negative
+                                                                                                                // Y
+                                                                                                                // (forward)
                                 .withVelocityY(MathUtil.applyDeadband(-joystick.getLeftX(), 0.2) * MaxSpeed) // Drive
-                                                                                                                   // left
-                                                                                                                   // with
-                                                                                                                   // negative
-                                                                                                                   // X
-                                                                                                                   // (left)
+                                                                                                             // left
+                                                                                                             // with
+                                                                                                             // negative
+                                                                                                             // X (left)
                                 .withRotationalRate(-joystick.getRightX() * MaxAngularRate) // Drive counterclockwise
                                                                                             // with negative X (left)
                 ));
 
-        //CommandScheduler.getInstance().schedule(new SetQuestNavPoseFromMegaTag1Command());
+      //fix questnav correction command
+        CommandScheduler.getInstance().schedule(new SetQuestNavPoseFromMegaTag1Command());
         CommandScheduler.getInstance().schedule(
             new InstantCommand(() -> drivetrain.getPigeon2().setYaw(limelightSubsystem.getMegaTag1Rotation().getDegrees()))
             .andThen(new InstantCommand(() -> drivetrain.seedFieldCentric(limelightSubsystem.getMegaTag1Rotation()))));
@@ -152,12 +168,28 @@ public class RobotContainer {
                         .withRotationalRate(0) // Drive coun
                 ));
 
-        //joystick.a().whileTrue(turretSubsystem.setAngle(Degrees.of(-45)));
-        //joystick.b().whileTrue(turretSubsystem.setAngle(Degrees.of(45)));
+    }
 
+    public void setUpAutonomousCommands() {
+        if (drivetrain != null) {
+            autoChooser = AutoBuilder.buildAutoChooser();
+        } else {
+            autoChooser = null;
+        }
+
+        if (autoChooser != null) {
+            SmartDashboard.putData("Auto Mode", autoChooser);
+        }
     }
 
     public Command getAutonomousCommand() {
-        return Commands.print("No autonomous command configured");
+        if (autoChooser != null) {
+            return autoChooser.getSelected();
+        }
+        return null;
+    }
+
+    public static void setupPathPlannerCommands() {
+        NamedCommands.registerCommand("Reset QuestNav", new SetQuestNavPoseFromMegaTag1Command());
     }
 }
