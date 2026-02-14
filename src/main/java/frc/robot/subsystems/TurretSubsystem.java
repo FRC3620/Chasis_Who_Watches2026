@@ -180,11 +180,15 @@ public class TurretSubsystem extends SubsystemBase {
     return new EasyCRTConfig(
             () -> absA.getAbsolutePosition().getValue(),
             () -> absB.getAbsolutePosition().getValue())
-        .withCommonDriveGear(1, 95, 19, 21)
+        // .withCommonDriveGear(1, 95, 19, 21)
+        .withAbsoluteEncoder1GearingStages(140, 18)
+        .withAbsoluteEncoder2GearingStages(140, 18, 24, 23)
         .withAbsoluteEncoderOffsets(Rotations.of(0), Rotations.of(0))
-        .withMechanismRange(Rotations.of(-0.4), Rotations.of(0.4))
-        .withMatchTolerance(Rotations.of(0.05))
-        .withCrtGearRecommendationConstraints(1.2, 15, 60, 40);
+        .withMechanismRange(
+            Rotations.of(-0.4166667), Rotations.of(0.4166667)) // 150 degrees total range
+        .withMatchTolerance(Rotations.of(0.03))
+        .withCrtGearRecommendationInputs(24, 140 / 18.0)
+        .withCrtGearRecommendationConstraints(1.1, 11, 60, 40);
   }
 
   /**
