@@ -22,7 +22,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.QuestNavSubsystem;
-import frc.robot.subsystems.TurretSubsystem;
 import gg.questnav.questnav.QuestNav;
 
 public class RobotContainer {
@@ -44,12 +43,12 @@ public class RobotContainer {
 
     public final QuestNavSubsystem questNavSubsystem = new QuestNavSubsystem(drivetrain, new Pose3d());
 
-    public final TurretSubsystem turretSubsystem = new TurretSubsystem();
+    //public final TurretSubsystem turretSubsystem = new TurretSubsystem();
 
     public RobotContainer() {
         configureBindings();
 
-        turretSubsystem.setDefaultCommand(turretSubsystem.setAngle(Degrees.of(0)));
+        //turretSubsystem.setDefaultCommand(turretSubsystem.setAngle(Degrees.of(0)));
     }
 
     private void configureBindings() {
@@ -98,8 +97,8 @@ public class RobotContainer {
                     .withRotationalRate(0) // Drive coun
         ));
 
-joystick.a().whileTrue(turretSubsystem.setAngle(Degrees.of(-45)));
-joystick.b().whileTrue(turretSubsystem.setAngle(Degrees.of(45)));
+//joystick.a().whileTrue(turretSubsystem.setAngle(Degrees.of(-45)));
+//joystick.b().whileTrue(turretSubsystem.setAngle(Degrees.of(45)));
 
     }
 
